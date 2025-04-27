@@ -10,7 +10,7 @@ function App() {
   });
   const [message, setMessage] = useState('');
 
-  const backendUrl = 'http://192.168.7.91:3001';
+  const backendUrl = 'http://192.168.7.90:5000';
 
   useEffect(() => {
     fetch(`${backendUrl}/api/cvs`)
@@ -174,7 +174,7 @@ function App() {
                   <td className="border border-gray-300 px-3 py-2">{cv.phone}</td>
                   <td className="border border-gray-300 px-3 py-2">
                     <a
-                      href={`http://192.168.7.91:3001/uploads/${cv.cvFileName}`}
+                      href={`http://192.168.7.90:5000/uploads/${cv.cvFileName}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
