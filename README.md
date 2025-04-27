@@ -1,54 +1,84 @@
 # CV Management System
 
-This project consists of two parts:
+This project consists of two parts running on the same VM (IP: 192.168.7.90):
 
-1. **Backend** - Express.js API server for CV reception and management.
-2. **Frontend** - React.js application with Tailwind CSS for CV submission and listing.
+1. **Backend** - Express.js API server for CV reception and management
+2. **Frontend** - React.js application with Tailwind CSS for CV submission and listing
 
-## Backend Setup (VM IP: 192.168.7.91)
+## Deployment Steps (VM IP: 192.168.7.90)
 
-1. Navigate to the `backend` directory:
-   ```
+1. Copy both `frontend` and `backend` directories to the VM.
+
+2. Set up the Backend:
+   ```bash
    cd backend
-   ```
-
-2. Install dependencies:
-   ```
    npm install
-   ```
-
-3. Start the server:
-   ```
    npm start
    ```
-   The backend server will run on port 3001.
+   The backend server will run on port 5000.
 
-## Frontend Setup (VM IP: 192.168.7.90)
-
-1. Navigate to the `frontend` directory:
-   ```
+3. Set up the Frontend (in a new terminal):
+   ```bash
    cd frontend
-   ```
-
-2. Install dependencies:
-   ```
    npm install
-   ```
-
-3. Start the React development server:
-   ```
    npm start
    ```
-   The frontend will run on port 3000 and connect to the backend API at `http://192.168.7.91:3001`.
+   The frontend will run on port 3000 and connect to the backend API at `http://192.168.7.90:5000`.
 
 ## Features
 
-- Submit CV with name, email, phone, and file upload.
-- View list of submitted CVs.
-- Download CV files.
-- Delete CV entries.
+- Submit CV with name, email, phone, and file upload
+- View list of submitted CVs
+- Download CV files
+- Delete CV entries
+
+## Production Deployment
+
+For production deployment:
+
+1. Build the frontend:
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+2. Use a process manager (like PM2) to run the backend:
+   ```bash
+   npm install -g pm2
+   cd backend
+   pm2 start server.js
+   ```
+
+3. Set up Nginx to serve the frontend build and proxy requests to the backend:
+   ```nginx
+   server {
+       listen 80;
+       server_name 192.168.7.90;
+
+       # Serve frontend
+       location / {
+           root /path/to/frontend/build;
+           try_files $uri $uri/ /index.html;
+       }
+
+       # Proxy backend requests
+       location /api {
+           proxy_pass http://localhost:5000;
+           proxy_http_version 1.1;
+           proxy_set_header Upgrade $http_upgrade;
+           proxy_set_header Connection 'upgrade';
+           proxy_set_header Host $host;
+           proxy_cache_bypass $http_upgrade;
+       }
+
+       # Serve uploaded files
+       location /uploads {
+           proxy_pass http://localhost:5000;
+       }
+   }
+   ```
 
 ## Notes
 
-- Uploaded CV files are stored in the backend `uploads` folder.
-- This is a simple implementation using in-memory storage for CV metadata. For production, consider using a database.
+- Uploaded CV files are stored in the backend `uploads` folder
+- This is a simple implementation using in-memory storage for CV metadata. For production, consider using a database
